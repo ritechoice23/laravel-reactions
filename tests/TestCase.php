@@ -1,0 +1,62 @@
+<?php
+
+namespace Ritechoice23\Reactions\Tests;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use Orchestra\Testbench\TestCase as Orchestra;
+use Ritechoice23\Reactions\ReactionsServiceProvider;
+
+class TestCase extends Orchestra
+{
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Factory::guessFactoryNamesUsing(
+            fn (string $modelName) => 'Ritechoice23\\Reactions\\Database\\Factories\\'.class_basename($modelName).'Factory'
+        );
+    }
+
+    protected function getPackageProviders($app)
+    {
+        return [
+            ReactionsServiceProvider::class,
+        ];
+    }
+
+    public function getEnvironmentSetUp($app)
+    {
+        config()->set('database.default', 'testing');
+
+        $migration = include __DIR__.'/../database/migrations/2025_11_06_000001_create_reactions_table.php';
+        $migration->up();
+
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamps();
+        });
+
+        Schema::create('posts', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->text('content');
+            $table->timestamps();
+        });
+
+        Schema::create('comments', function (Blueprint $table) {
+            $table->id();
+            $table->text('body');
+            $table->timestamps();
+        });
+
+        Schema::create('teams', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+    }
+}
